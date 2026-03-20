@@ -1,48 +1,49 @@
+# returns the number of times that needle appears in word. Case sensitive
+def num_matches_in_word(word, needle)
+    start_index = 0
+    end_index = needle.length-1
+    accumulator=0
+
+    until end_index > word.length
+        word_partial=word[start_index, end_index]
+        
+        if word_partial.include?(needle)
+            start_index += (word_partial.index(needle)) + 1
+            accumulator+=1
+        else
+            end_index+=1
+        end
+    end
+
+    return accumulator
+end
+
+
 def substrings (string, dictionary)
     
     dictionary.reduce(Hash.new(0)) do |result, dict_word|
-        
-        # increment result[dict_word] by the number of times that dict_word appears in string
-        
-        # the select with split(" ") method doesn't work because select will only say once per word ('na' in 'banana' will say 1 instead of 2)
-        # result[dict_word] += (string.downcase.split(" ").select { |word| word.include?(dict_word.downcase) }).count
-        
 
-        start_index=0
-        end_index=0
-        accumulator=0
+        dict_word=dict_word.downcase
 
-        until end_index > string.length
-            current_string=string[start_index, end_index].downcase
-            
-            if current_string.include?(dict_word.downcase)
-                start_index += (current_string.index(dict_word.downcase)) + 1
-                accumulator+=1
-            else
-                end_index+=1
-            end
-        end
+        # select all words that have a match somewhere in them
+        words_with_matches=string.downcase.split(" ").select {|word| word.include?(dict_word)}
 
+        # get the number of times that dictionary word appears in each word
+        num_matches = words_with_matches.reduce(0) { |accumulator, word| accumulator + num_matches_in_word(word, dict_word) }
 
-        unless accumulator==0
-            result[dict_word] += accumulator
-        end
+        result[dict_word] = num_matches unless num_matches==0
 
         result
 
     end
 
-
 end
-
 
 
 dictionary = ["ba", "na"]
 
 # should return {"ba" => 1, "na" => 2}
 p substrings("banana", dictionary)
-
-
 
 dictionary = ["below","down","go","going","horn","how","howdy","it","i","low","own","part","partner","sit"]
 
